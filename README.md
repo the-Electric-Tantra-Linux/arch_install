@@ -40,4 +40,4 @@ unless you are using another disk than /dev/sda as your root. On my workstation 
 1. reboot - obviously
 2. create a new user - doesn't stick when you do it before the reboot for some reason so save the time and wait until root, then 
 `useradd -s /bin/zsh -g wheel -m tlh` 
-3. install your choice of WM or DE (I use my dotfiles for this but this is modular enough it can be used independently of my dotfiles)
+3. install your choice of WM or DE. I use my dotfiles for this but this is modular enough it can be used independently of my dotfiles, and pulling that whole repo for these two scripts makes little sense so lucky you!
