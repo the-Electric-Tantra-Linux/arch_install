@@ -67,8 +67,8 @@ mount /dev/sda1 /mnt/boot/efi
 
 # Install ######################################################
 echo "Starting install.."
-echo "Installing Arch Linux, KDE with Konsole and Dolphin and GRUB2 as bootloader" 
-pacstrap /mnt base base-devel zsh grml-zsh-config grub os-prober amd-ucode efibootmgr dosfstools freetype2 fuse2 mtools dialog xorg xorg-server xorg-xinit mesa xf86-video-nouveau 
+echo "Installing Arch Linux"
+pacstrap /mnt linux-headers linux linux-firmware base base-devel zsh grml-zsh-config grub os-prober amd-ucode efibootmgr dosfstools freetype2 fuse2 mtools dialog xorg xorg-server xorg-xinit mesa  
 
 # fstab ########################################################
 genfstab -U /mnt >> /mnt/etc/fstab
