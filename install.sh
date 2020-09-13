@@ -68,7 +68,7 @@ mount /dev/sda1 /mnt/boot/efi
 # Install ######################################################
 echo "Starting install.."
 echo "Installing Arch Linux"
-pacstrap /mnt linux-headers linux linux-firmware base base-devel zsh grml-zsh-config grub os-prober amd-ucode efibootmgr dosfstools freetype2 fuse2 mtools dialog xorg xorg-server xorg-xinit mesa  
+pacstrap /mnt linux-headers linux linux-firmware base base-devel zsh grub os-prober amd-ucode efibootmgr dosfstools freetype2 fuse2 mtools dialog xorg xorg-server xorg-xinit mesa  
 
 # fstab ########################################################
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -80,10 +80,8 @@ chmod a+x /mnt/root/post-install.sh
 # Chroot #######################################################
 echo "After chrooting into newly installed OS, please run the post-install.sh by executing ./post-install.sh"
 echo "Press any key to chroot..."
-read tmpvar
 arch-chroot /mnt /bin/bash
 
 # Finish #######################################################
-echo "Press any key to reboot or Ctrl+C to cancel..."
-read tmpvar
+echo "Please reboot immeadiately..."
 reboot
