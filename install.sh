@@ -27,17 +27,30 @@ fi
 read -p "Please Enter The Disk Name (run lsblk if unsure) [/dev/sda]: " disk
 
 ## Programatically Partition ###################################
-echo "label: gpt" >> script.sfdisk
-echo "start=        2048, size=     2097152, type=EFh, bootable"  >> script.sfdisk
-echo "start=     2099200, size=   974673935, type=83" >> script.sfdisk
-
-sudo sfdisk -d $disk 
-
+# to create the partitions programatically (rather than manually)
+# https://superuser.com/a/984637
+sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk ${TGTDEV}
+  o # clear the in memory partition table
+  n # new partition
+  p # primary partition
+  1 # partition number 1
+    # default - start at beginning of disk 
+  +512M # 512 MB boot parttion
+  n # new partition
+  p # primary partition
+  2 # partion number 2
+    # default, start immediately after preceding partition
+    # default, extend partition to end of disk
+  a # make a partition bootable
+  1 # bootable partition is partition 1 -- /dev/sda1
+  p # print the in-memory partition table
+  w # write the partition table
+  q # and we're done
 EOF
 
 # Format #######################################################
-mkfs.ext4 /dev/nvme0n1p2
-mkfs.fat -F32 /dev/nvme0n1p2
+mkfs.ext4 /dev/sda2
+mkfs.fat -F32 /dev/sda1
 
 # Time #########################################################
 timedatectl set-ntp true
@@ -48,11 +61,9 @@ pacman-key --populate archlinux
 pacman-key --refresh-keys
 
 # Mount ########################################################
-mount /dev/sda3 /mnt
+mount /dev/sda2 /mnt
 mkdir -pv /mnt/boot/efi
 mount /dev/sda1 /mnt/boot/efi
-mkswap /dev/sda2
-swapon /dev/sda2
 
 # Install ######################################################
 echo "Starting install.."
