@@ -29,7 +29,7 @@ read -p "Please Enter The Disk Name (run lsblk if unsure) [/dev/sda]: " disk
 ## Programatically Partition ###################################
 # to create the partitions programatically (rather than manually)
 # https://superuser.com/a/984637
-sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk ${TGTDEV}
+sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk /dev/sda
   o # clear the in memory partition table
   n # new partition
   p # primary partition
@@ -84,7 +84,6 @@ read tmpvar
 arch-chroot /mnt /bin/bash
 
 # Finish #######################################################
-zenity --text-info --filename=TEXT --html
 echo "Press any key to reboot or Ctrl+C to cancel..."
 read tmpvar
 reboot
