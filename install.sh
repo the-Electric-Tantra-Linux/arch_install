@@ -49,8 +49,8 @@ sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk /dev/sda
 EOF
 
 # Format #######################################################
-mkfs.ext4 /dev/sda2
-mkfs.fat -F32 /dev/sda1
+mkfs.ext4 /dev/nvme0n1p2
+mkfs.fat -F32 /dev/nvme0n1p1
 
 # Time #########################################################
 timedatectl set-ntp true
