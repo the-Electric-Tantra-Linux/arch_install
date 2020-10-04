@@ -24,25 +24,24 @@ then
     echo "Edit the script to continue..."
     exit
 fi
-read -p "Please Enter The Disk Name (run lsblk if unsure) [/dev/sda]: " disk
 
 ## Programatically Partition ###################################
 # to create the partitions programatically (rather than manually)
 # https://superuser.com/a/984637
-sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk /dev/sda
+sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk /dev/nvme0n1
   o # clear the in memory partition table
   n # new partition
   p # primary partition
   1 # partition number 1
     # default - start at beginning of disk 
-  +512M # 512 MB boot parttion
+  +1024M # 512 MB boot parttion
   n # new partition
   p # primary partition
   2 # partion number 2
     # default, start immediately after preceding partition
     # default, extend partition to end of disk
   a # make a partition bootable
-  1 # bootable partition is partition 1 -- /dev/sda1
+  1 # bootable partition is partition 1 -- 
   p # print the in-memory partition table
   w # write the partition table
   q # and we're done
@@ -61,9 +60,9 @@ pacman-key --populate archlinux
 pacman-key --refresh-keys
 
 # Mount ########################################################
-mount /dev/sda2 /mnt
+mount /dev/nvme0n1p2 /mnt
 mkdir -pv /mnt/boot/efi
-mount /dev/sda1 /mnt/boot/efi
+mount /dev/nvme0n1p1 /mnt/boot/efi
 
 # Install ######################################################
 echo "Starting install.."
@@ -84,4 +83,3 @@ arch-chroot /mnt /bin/bash
 
 # Finish #######################################################
 echo "Please reboot immeadiately..."
-reboot
