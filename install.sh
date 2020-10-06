@@ -67,7 +67,7 @@ mount /dev/nvme0n1p1 /mnt/boot/efi
 # Install ######################################################
 echo "Starting install.."
 echo "Installing Arch Linux"
-pacstrap /mnt linux-headers linux linux-firmware base base-devel zsh grub os-prober amd-ucode efibootmgr dosfstools freetype2 fuse2 mtools dialog xorg xorg-server xorg-xinit xorg-apps git vim vi sudo xorg-drivers mesa  
+pacstrap /mnt linux-headers linux linux-firmware base base-devel zsh grub os-prober amd-ucode efibootmgr dosfstools freetype2 fuse2 mtools dialog xorg xorg-server xorg-xinit xorg-apps git vim vi sudo xorg-drivers mesa networkmanager 
 
 # fstab ########################################################
 genfstab -U /mnt >> /mnt/etc/fstab

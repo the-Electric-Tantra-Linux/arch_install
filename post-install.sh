@@ -38,9 +38,6 @@ grub-mkconfig -o /boot/grub/grub.cfg
 # echo "Set password for new user tlh"
 # passwd tlh
 
-# Setup display manager
-systemctl enable lightdm.service
-
 # Enable services
 systemctl enable NetworkManager.service
 
