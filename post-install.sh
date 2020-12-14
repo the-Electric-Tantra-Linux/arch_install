@@ -29,6 +29,7 @@ mkinitcpio -P
 passwd
 
 # Install bootloader
+mkdir /boot/grub
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=arch
 grub-mkconfig -o /boot/grub/grub.cfg
 
