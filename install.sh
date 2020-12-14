@@ -16,8 +16,8 @@ fi
 
 # Filesystem ###################################################
 echo "This script will create and format the partitions as follows:"
-echo "/dev/nvme0n1p1 - 512Mib will be mounted as /boot/efi"
-echo "/dev/nvme0n1p2 - rest of space will be mounted as /"
+echo "/dev/sda1 - 512Mib will be mounted as /boot/efi"
+echo "/dev/sda2 - rest of space will be mounted as /"
 read -p 'Continue? [y/N]: ' fsok
 if ! [ $fsok = 'y' ] && ! [ $fsok = 'Y' ]
 then 
@@ -28,7 +28,7 @@ fi
 ## Programatically Partition ###################################
 # to create the partitions programatically (rather than manually)
 # https://superuser.com/a/984637
-sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk /dev/nvme0n1
+sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk /dev/sda
   o # clear the in memory partition table
   n # new partition
   p # primary partition
@@ -48,8 +48,8 @@ sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | fdisk /dev/nvme0n1
 EOF
 
 # Format #######################################################
-mkfs.ext4 /dev/nvme0n1p2
-mkfs.fat -F32 /dev/nvme0n1p1
+mkfs.ext4 /dev/sda2
+mkfs.fat -F32 /dev/sda1
 
 # Time #########################################################
 timedatectl set-ntp true
@@ -60,9 +60,9 @@ pacman-key --populate archlinux
 pacman-key --refresh-keys
 
 # Mount ########################################################
-mount /dev/nvme0n1p2 /mnt
+mount /dev/sda2 /mnt
 mkdir -pv /mnt/boot/efi
-mount /dev/nvme0n1p1 /mnt/boot/efi
+mount /dev/sda1 /mnt/boot/efi
 
 # Install ######################################################
 echo "Starting install.."
