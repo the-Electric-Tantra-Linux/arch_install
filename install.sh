@@ -79,7 +79,7 @@ chmod a+x /mnt/root/post-install.sh
 # Chroot #######################################################
 echo "After chrooting into newly installed OS, please run the post-install.sh by executing ./post-install.sh"
 echo "Press any key to chroot..."
-arch-chroot /mnt /bin/bash
+arch-chroot /mnt /bin/bash -c './mnt/root/post-install.sh'
 
 # Finish #######################################################
 echo "Please reboot immeadiately..."
