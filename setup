@@ -5,17 +5,23 @@ init() {
   DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   source "$DIR"/etc/setup.conf
   clear ; setfont Lat2-Terminus16.psfu.gz
-  dialog --title "Electric Tantra Linux Installer" \
-    --ok-label "Begin Installation" --msgbox "Use the arrows to navigate, hit Enter to make your selection." 7 70
+  dialog --title "Welcome to Arch Linux Installer" \
+    --ok-label "Begin Installation" --msgbox "Navigating the installer is \
+easy.\nYou may select options using the ARROW keys and SPACE or \
+ENTER.\nAlternate keys may also be used: '+', '-', and TAB." 7 70
 }
 
 # Proceed with installation only if there is an internet connection
 check_connection() {
-  dialog --infobox "Checking internet connection" 3 50
+  dialog --infobox "Checking internet connection..." 3 50
   # Check if a web page is available
   if ! nc -zw1 archlinux.org 443; then
-    dialog --title "Connect to the Internet!" \
-      --msgbox "How did you even get here if you don't have internet?! \n\n Whatever, you definitely need internet if you want to use this installer, so its probably time to connect to it." 10 80
+    dialog --title "Connect to the Internet" \
+      --msgbox "The installer was unable to detect a working internet \
+connection. The installation media supports wired network devices on \
+boot. Make sure the cable is plugged in. Wireless users should use the \
+'iwctl' command to connect to a wireless connection.\n\nOnce you have \
+a working internet connection, retry running the installer." 10 80
     reset ; exit 1
   fi
 }
@@ -123,7 +129,10 @@ set_locale() {
   while true; do
     LOCALE=$(dialog --title "Set the System Locale" --nocancel \
       --default-item "en_US.UTF-8" --menu "Select a locale that corresponds \
-to your language and region. If you are unsure, the default is 'en_US.UTF-8'.\n\nLocale:" 30 65 16 \
+to your language and region. The locale you select will define the language \
+used by the system and other region specific information. Choose 'other' if \
+your language and/or region is not listed. If you are unsure, the default is \
+'en_US.UTF-8'.\n\nLocale:" 30 65 16 \
 "zh_CN.UTF-8" "Chinese (Simplified)" \
 "en_AU.UTF-8" "English (Australia)" \
 "en_CA.UTF-8" "English (Canada)" \
@@ -176,7 +185,8 @@ set_timezone() {
 
   while true; do
     ZONE=$(dialog --title "Set the Time Zone" --nocancel \
-      --menu "Select your time zone.\n\nTime zone:" 27 50 17 \
+      --menu "Select your time zone.\nIf your region is not listed, select \
+'other'.\n\nTime zone:" 27 50 17 \
 "${regions[@]}" 3>&1 1>&2 2>&3)
 
     if [ "$ZONE" != "other" ]; then
@@ -239,8 +249,9 @@ instead.\n\nIf you are unsure, UTC time is the default." 8 85
 # Prompt the user to set the system hostname
 set_hostname() {
   while true; do
-    HOST_NAME=$(dialog --title "Hostname" --nocancel \
-      --inputbox "Hostname:" \
+    HOST_NAME=$(dialog --title "Set the Hostname" --nocancel \
+      --inputbox "Please enter the hostname for this system.\n\nThe hostname \
+is a single word that identifies your system to the network.\n\nHostname:" \
 12 80 "arch" 3>&1 1>&2 2>&3)
 
     # Hostname must be alpha-numeric and may contain a dash only in between
@@ -249,8 +260,11 @@ set_hostname() {
       && [ "${HOST_NAME: -1}" != "-" ]; then
       break
     else
-      dialog --title "ERROR: Invalid Hostname" \
-        --msgbox "Valid hostnames may only contain alphanumeric symbols and the minus sign. \n\n At most 63 characters long \n\n May not begin or end with a minus sign." 9 75
+      dialog --title "ERROR: Invalid Hostname Format" \
+        --msgbox "You entered an invalid hostname.\n\nA valid hostname may \
+contain only the numbers 0-9, upper and lowercase letters (A-Z and a-z), and \
+the minus sign. It must be at most 63 characters long, and may not begin \
+or end with a minus sign." 9 75
     fi
   done
 }
@@ -259,17 +273,18 @@ set_hostname() {
 set_root_passwd(){
   inputs_match=false
   while ! $inputs_match; do
-    input=$(dialog --title "Root Password" --clear --stdout --nocancel \
-      --insecure --passwordbox "Root password:" 10 75)
-    confirm_input=$(dialog --title "Root Password" --clear --stdout \
-      --insecure --passwordbox "Re-enter:" 8 55)
+    input=$(dialog --title "Set the Root Password" --clear --stdout --nocancel \
+      --insecure --passwordbox "Please enter a password for 'root', the \
+system administrative account.\n\nRoot password:" 10 75)
+    confirm_input=$(dialog --title "Set the Root Password" --clear --stdout \
+      --insecure --passwordbox "Re-enter password to verify:" 8 55)
 
     if [ -z "$input" ]; then
       dialog --title "ERROR: Empty Password" \
-        --msgbox "A PASSWORD IS NECESSARY" 5 55
+        --msgbox "You are not allowed to have an empty password." 5 55
     elif [ "$input" != "$confirm_input" ]; then
-      dialog --title "ERROR: No Match" \
-        --msgbox "Passwords Did Not Match" 5 55
+      dialog --title "ERROR: Passwords Do No Match" \
+        --msgbox "The two passwords you entered did not match." 5 55
     else
       root_passwd="$input"
       inputs_match=true
@@ -280,11 +295,19 @@ set_root_passwd(){
 # Prompt the user to create an unprivileged user account
 create_user() {
   while true; do
-    FULL_NAME=$(dialog --title "User Account" --nocancel \
-      --inputbox "Full name:" 15 80 3>&1 1>&2 2>&3)
+    FULL_NAME=$(dialog --title "Create a User Account" --nocancel \
+      --inputbox "The installer will create a user account for you. This is \
+the main user account that you will login to and use for non-administrative \
+activities.\n\nPlease enter the real name for this user. This information \
+will be used for any program that uses the user's real name such as email. \
+Entering your full name here is recommended; however, it may be left \
+blank.\n\nFull name for the new user:" 15 80 3>&1 1>&2 2>&3)
 
-    USER_NAME=$(dialog --title "User Account" \
-     --cancel-label "Back" --inputbox "Username:" 13 80 3>&1 1>&2 2>&3)
+    USER_NAME=$(dialog --title "Create a User Account" \
+     --cancel-label "Back" --inputbox "Please enter a username for the new \
+account.\n\nThe username should start with a lower-case letter, which can be \
+followed by any combination of numbers, more lower-case letters, or the dash \
+symbol.\n\nUsername for your account:" 13 80 3>&1 1>&2 2>&3)
 
     if [ $? -eq 0 ]; then
       # Username must start with lowercase letter. May contain lowercase
@@ -294,23 +317,24 @@ create_user() {
         # The reserved_username file contains usernames that should be avoided
         if grep -Fxq "$USER_NAME" "$DIR"/etc/reserved_usernames; then
           dialog --title "ERROR: Reserved Username" \
-            --msgbox "($USER_NAME) is reserved." 6 70
+            --msgbox "The username you entered ($USER_NAME) is reserved for \
+use by the system. Please select a different one." 6 70
         else 
           inputs_match=false
           while ! $inputs_match; do
-            input=$(dialog --title "Password for $USER_NAME" --clear \
+            input=$(dialog --title "Set the Password for $USER_NAME" --clear \
               --stdout --nocancel --insecure --passwordbox "Please enter a \
-password for '$USER_NAME'.\n\nPassword:" 10 70)
+password for '$USER_NAME'.\n\nChoose a password for the new user:" 10 70)
             confirm_input=$(dialog --title "Set the Password for $USER_NAME" \
               --clear --stdout --insecure \
-              --passwordbox "Re-enter:" 8 55)
+              --passwordbox "Re-enter password to verify:" 8 55)
 
             if [ -z "$input" ]; then
               dialog --title "ERROR: Empty Password" \
-                --msgbox "YOU MUST ENTER A PASSWORD." 5 55
+                --msgbox "You are not allowed to have an empty password." 5 55
             elif [ "$input" != "$confirm_input" ]; then
-              dialog --title "ERROR: No Match" \
-                --msgbox "Passwords did not match." 5 55
+              dialog --title "ERROR: Passwords Do No Match" \
+                --msgbox "The two passwords you entered did not match." 5 55
             else
               user_passwd="$input"
               inputs_match=true
@@ -320,7 +344,10 @@ password for '$USER_NAME'.\n\nPassword:" 10 70)
         fi
       else
         dialog --title "ERROR: Invalid Username Format" \
-          --msgbox "You entered an invalid username." 9 80
+          --msgbox "You entered an invalid username.\n\nThe username must \
+start with a lower-case letter, which can be followed by any combination of \
+numbers, more lower-case letters, or the dash symbol, and must be no more \
+than 32 characters long." 9 80
       fi
     fi
   done
@@ -339,8 +366,8 @@ prepare_disk() {
 
   check_mountpoints
   while true; do
-    PARTITION_LAYOUT=$(dialog --title "Partitioning" \
-      --cancel-label "Exit" \
+    PARTITION_LAYOUT=$(dialog --title "Partition the Disks" \
+      --cancel-label "Exit to Menu" \
       --menu "The installer will now automatically partition a disk for you. \
 If you have no preference or are unsure about which partition layout to \
 choose, the 'Basic' layout is the simplest and should be enough for most use \
@@ -351,16 +378,17 @@ cases.\n\nPartition layout:" 14 80 3 \
 
     if [ $? -eq 0 ]; then
       DISK=$(dialog --title "Set the Installation Disk" --cancel-label "Back" \
-        --menu "Select the disk for  Linux to be installed on. Note that \
+        --menu "Select the disk for Arch Linux to be installed on. Note that \
 the disk you select will be erased, but not until you have confirmed the \
 changes.\n\nDisk to partition:" 16 55 5 \
 "${block_devices[@]}" 3>&1 1>&2 2>&3)
 
       if [ $? -eq 0 ]; then
         # NVME devices use nvme0n1p1, p2, p3 etc. for partition naming
-        # Added in functionality for sd cards below
-        PREFIX="<F12>"
-        if [[ "$DISK" == *"nvme"* || "$DISK" == *"mmcblk"* ]]; then
+        # TODO: May need to be modified to support installing on other block
+        # devices (SD cards, USB?)
+        PREFIX=""
+        if [[ "$DISK" == *"nvme"* ]]; then
           PREFIX="p"
         fi
 
@@ -640,7 +668,7 @@ update_mirrorlist() {
   dialog --title "Update the Mirror List" \
     --yesno "Would you like to update the Arch Linux mirror list?\n\nUpdating \
 the mirror list will speed up the download of packages. If you select no, \
-you will regret it immensely." 8 70
+your download speed may be affected." 8 70
 
   if [ $? -eq 0 ]; then
     dialog --infobox "Updating pacman mirror list..." 3 50
@@ -696,10 +724,12 @@ use.\n\nGraphical environment:" 12 75 3 \
         --cancel-label "Back" \
         --menu "Select a desktop environment to install:" 15 65 8 \
 "Budgie" "Modern GNOME based desktop" \
+"Cinnamon" "Traditional desktop experience" \
 "GNOME" "Modern simplicity focused desktop" \
-"Plasma" "Full featured QT based desktop" \
+"KDE Plasma" "Full featured QT based desktop" \
 "LXDE" "Lightweight and efficient desktop" \
 "LXQT" "Lightweight and efficient QT based desktop" \
+"MATE" "Continuation of the GNOME 2 desktop" \
 "Xfce" "Lightweight and modular desktop" 3>&1 1>&2 2>&3)
       if [ $? -eq 0 ]; then
         break
@@ -708,7 +738,7 @@ use.\n\nGraphical environment:" 12 75 3 \
       GUI=$(dialog --title "Select a Window Manager" \
         --cancel-label "Back" \
         --menu "Select a window manager to install:" 13 75 6 \
-"awesome" "Highly configurable, dynamic window manager from HELL" \
+"awesome" "Highly configurable, dynamic window manager" \
 "bspwm" "Tiling window manager based on binary space partitioning" \
 "Fluxbox" "Stacking window manager based on Blackbox" \
 "i3" "Dynamic tiling window manager inspired by wmii" \
@@ -734,6 +764,9 @@ applications that integrate well with the Budgie desktop." 8 60
                 fi
                 xinit_config="export XDG_CURRENT_DESKTOP=Budgie:GNOME ; exec budgie-desktop"
                 ;;
+      "Cinnamon") DESKTOP_PACKAGES+=('cinnamon' 'cinnamon-translations' 'nemo-fileroller')
+                  xinit_config="exec cinnamon-session"
+                  ;;
       "GNOME") DESKTOP_PACKAGES+=('gnome')
                dialog --title "Install Extras" --yesno "Would you like to \
 install the 'gnome-extra' group?\n\nIt contains additional utilities and \
@@ -757,6 +790,15 @@ and applications that integrate well with the Plasma desktop." 8 60
               ;;
       "LXQT") DESKTOP_PACKAGES+=('lxqt' 'breeze-icons')
               xinit_config="exec startlxqt"
+              ;;
+      "MATE") DESKTOP_PACKAGES+=('mate' 'gtk-engines' 'gtk-engine-murrine')
+              dialog --title "Install Extras" --yesno "Would you like to \
+install the 'mate-extra' group?\n\nIt contains additional utilities and \
+applications that integrate well with the MATE desktop." 8 60
+              if [ $? -eq 0 ]; then
+                DESKTOP_PACKAGES+=('mate-extra')
+              fi
+              xinit_config="exec mate-session"
               ;;
       "Xfce") DESKTOP_PACKAGES+=('xfce4')
               dialog --title "Install Extras" --yesno "Would you like to \
@@ -1091,7 +1133,8 @@ reboot your system?" 7 60
 main_menu() {
   while true; do
     choice=$(dialog --title "Main Menu" --nocancel \
-      --menu "Select an option below using the UP/DOWN keys and ENTER.\n" 19 70 11 \
+      --menu "Select an option below using the UP/DOWN keys and SPACE or \
+ENTER.\nAlternate keys may also be used: '+', '-', and TAB." 19 70 11 \
 "KEYMAP" "Set the keyboard layout" \
 "LOCALE" "Set the system locale" \
 "TIMEZONE" "Set the system time zone" \
@@ -1100,7 +1143,7 @@ main_menu() {
 "CREATE USER" "Create your user account" \
 "PARTITION" "Partition the installation drive" \
 "UPDATE MIRRORS" "Update the pacman mirror list" \
-"INSTALL" "Install the Electric Tantra Linux" \
+"INSTALL" "Install Arch Linux" \
 "REBOOT" "Reboot system" \
 "EXIT" "Exit Arch Linux Installer" 3>&1 1>&2 2>&3)
 
