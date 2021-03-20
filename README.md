@@ -8,9 +8,9 @@ Eventually will become part of the Electric Tantra Linux and its installation pr
 to use it (like I do everytime I break my installation) follow these commands upon booting the live ISO 
 
 ```bash
-pacman -S git glibc 
+pacman -S git glibc dialog 
 git clone https://github.com/Thomashighbaugh/arch_install
 cd arch_install
-
+./setup
 
 ```
