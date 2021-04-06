@@ -385,9 +385,7 @@ changes.\n\nDisk to partition:" 16 55 5 \
 
       if [ $? -eq 0 ]; then
         # NVME devices use nvme0n1p1, p2, p3 etc. for partition naming
-        # TODO: May need to be modified to support installing on other block
-        # devices (SD cards, USB?)
-        PREFIX=""
+      PREFIX=""
         if [[ "$DISK" == *"nvme"* ]]; then
           PREFIX="p"
         fi
